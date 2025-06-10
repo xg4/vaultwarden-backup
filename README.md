@@ -51,6 +51,20 @@ docker run -d \
 
 备份文件将以 `backup_YYYYMMDD_HHMMSS.tar.gz` 的格式命名，并使用 AES-256-CBC 加密。每次备份完成后，脚本会显示加密密码。
 
+### 还原备份
+
+您可以使用以下命令来还原备份文件：
+
+```bash
+openssl enc -d -aes-256-cbc -pbkdf2 -in backup_YYYYMMDD_HHMMSS.tar.gz -out - -pass pass:your-password | tar xz -C .
+```
+
+**注意：**
+
+- 将 `backup_YYYYMMDD_HHMMSS.tar.gz` 替换为您的实际备份文件名。
+- 将 `your-password` 替换为您的备份加密密码。
+- `-C .` 表示将文件解压到当前目录，您可以根据需要修改目标目录。
+
 ## 依赖
 
 - sqlite3

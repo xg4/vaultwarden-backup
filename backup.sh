@@ -209,8 +209,8 @@ main() {
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
 
-    color green "==================== 备份完成 ===================="
     color green "用时: ${duration} 秒"
+    color green "==================== 备份完成 ===================="
 }
 
 # 脚本入口
