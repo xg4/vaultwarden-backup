@@ -30,7 +30,8 @@ generate_password() {
     if command -v openssl >/dev/null 2>&1; then
         openssl rand -hex 16
     else
-        date +%s | sha256sum | head -c 32
+        color red "错误：未找到 openssl 。无法生成安全密码。"
+        exit 1
     fi
 }
 
