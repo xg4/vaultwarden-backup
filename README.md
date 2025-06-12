@@ -29,17 +29,20 @@ docker pull ghcr.io/xg4/vaultwarden-backup
 
 ```bash
 docker run -d \
+  --name vaultwarden-backup \
   -v /path/to/vaultwarden/data:/data \
   -v /path/to/backup:/backups \
   -e ZIP_PASSWORD=your-password \
+  --restart unless-stopped \
   ghcr.io/xg4/vaultwarden-backup
 ```
 
 ### 环境变量
 
-- `DATA_DIR`: Vaultwarden 数据目录路径（默认：/data）
-- `BACKUP_DIR`: 备份文件存储路径（默认：/backups/backup）
-- `ZIP_PASSWORD`: 备份文件加密密码（可选，默认自动生成）
+- `DATA_DIR`: Vaultwarden 数据目录路径（默认：`/data`）
+- `BACKUP_DIR`: 备份文件存储路径（默认：`/backups/backup`）
+- `ZIP_PASSWORD`: 备份文件加密密码（**必需**）。脚本在执行前会检查此环境变量是否设置，如果未设置则会报错并退出。
+- `RETENTION_DAYS`: 备份文件保留天数（默认：`30`）。脚本会清理超过此天数的旧备份文件。设置为 `0` 则不清理。
 
 ### 手动执行备份
 
@@ -49,14 +52,14 @@ docker run -d \
 
 ## 备份文件说明
 
-备份文件将以 `backup_YYYYMMDD_HHMMSS.tar.gz` 的格式命名，并使用 AES-256-CBC 加密。每次备份完成后，脚本会显示加密密码。
+备份文件将以 `backup_YYYYMMDD_HHMMSS.tar.gz` 的格式命名，并使用您在 `ZIP_PASSWORD` 环境变量中设置的密码通过 AES-256-CBC 加密。
 
 ### 还原备份
 
 您可以使用以下命令来还原备份文件：
 
 ```bash
-openssl enc -d -aes-256-cbc -pbkdf2 -in backup_YYYYMMDD_HHMMSS.tar.gz -out - -pass pass:your-password | tar xz -C .
+openssl enc -d -aes-256-cbc -salt -pbkdf2 -pass pass:your-password -in backup_YYYYMMDD_HHMMSS.tar.gz | tar xz -C .
 ```
 
 **注意：**
