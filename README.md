@@ -33,6 +33,7 @@ docker run -d \
   -v /path/to/vaultwarden/data:/data \
   -v /path/to/backup:/backups \
   -e ZIP_PASSWORD=your-password \
+  -e RETENTION_DAYS=1 \
   --restart unless-stopped \
   ghcr.io/xg4/vaultwarden-backup
 ```
