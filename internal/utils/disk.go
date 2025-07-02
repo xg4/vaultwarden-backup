@@ -9,15 +9,9 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-type DiskSpaceCtx struct {
-	SrcDir string // 数据目录
-	DstDir string // 备份目录
-	Log    *slog.Logger
-}
-
-func CheckDiskSpace(ctx *DiskSpaceCtx) error {
+func CheckDiskSpace(src, dst string) error {
 	var dataSize int64
-	err := filepath.Walk(ctx.SrcDir, func(_ string, info os.FileInfo, err error) error {
+	err := filepath.Walk(src, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -31,14 +25,14 @@ func CheckDiskSpace(ctx *DiskSpaceCtx) error {
 	}
 
 	var stat unix.Statfs_t
-	if err := unix.Statfs(ctx.DstDir, &stat); err != nil {
+	if err := unix.Statfs(dst, &stat); err != nil {
 		return fmt.Errorf("获取文件系统状态失败: %w", err)
 	}
 
 	availableSpace := int64(stat.Bavail) * stat.Bsize
 	requiredSpace := dataSize * 2
 
-	ctx.Log.Debug("检查磁盘空间", "需要", formatBytes(requiredSpace), "可用", formatBytes(availableSpace))
+	slog.Debug("检查磁盘空间", "需要", formatBytes(requiredSpace), "可用", formatBytes(availableSpace))
 
 	if availableSpace < requiredSpace {
 		return fmt.Errorf("磁盘空间不足。需要: %s, 可用: %s", formatBytes(requiredSpace), formatBytes(availableSpace))

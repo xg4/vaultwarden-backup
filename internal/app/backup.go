@@ -18,17 +18,16 @@ import (
 // App 封装了备份应用的状态和依赖
 type App struct {
 	cfg *config.Config
-	log *slog.Logger
 }
 
 // New 创建一个新的 App 实例
-func New(cfg *config.Config, log *slog.Logger) *App {
-	return &App{cfg: cfg, log: log}
+func New(cfg *config.Config) *App {
+	return &App{cfg: cfg}
 }
 
 // Run 执行完整的备份和清理流程
 func (a *App) Run() error {
-	a.log.Info("开始备份流程", "timestamp", a.cfg.Timestamp)
+	slog.Info("开始备份流程", "timestamp", a.cfg.Timestamp)
 
 	// 1. 运行前检查
 	if err := utils.ValidateDirectories(a.cfg); err != nil {
@@ -36,7 +35,7 @@ func (a *App) Run() error {
 	}
 
 	// 检查磁盘空间
-	if err := utils.CheckDiskSpace(&utils.DiskSpaceCtx{SrcDir: a.cfg.DataDir, DstDir: a.cfg.BackupDir, Log: a.log}); err != nil {
+	if err := utils.CheckDiskSpace(a.cfg.DataDir, a.cfg.BackupDir); err != nil {
 		return err
 	}
 
@@ -61,7 +60,7 @@ func (a *App) Run() error {
 	// 5. 清理旧备份
 	if err := a.cleanupOldBackups(); err != nil {
 		// 清理旧备份的失败不应导致整个备份失败，只记录警告
-		a.log.Warn("清理旧备份失败", "error", err)
+		slog.Warn("清理旧备份失败", "error", err)
 	}
 
 	return nil
@@ -90,7 +89,7 @@ type taskJob struct {
 }
 
 func (a *App) runTasks() error {
-	taskCtx := &task.Context{Cfg: a.cfg, Log: a.log}
+	taskCtx := &task.Context{Cfg: a.cfg}
 	tasks := task.GetAllTasks()
 
 	// 创建带取消功能的上下文
@@ -104,7 +103,7 @@ func (a *App) runTasks() error {
 	// 用于等待所有goroutine完成
 	var wg sync.WaitGroup
 
-	a.log.Info("执行备份任务", "concurrency", a.cfg.MaxConcurrency, "total", len(tasks))
+	slog.Info("执行备份任务", "concurrency", a.cfg.MaxConcurrency, "total", len(tasks))
 
 	maxWorkers := min(a.cfg.MaxConcurrency, len(tasks))
 
@@ -120,7 +119,7 @@ func (a *App) runTasks() error {
 						return
 					}
 
-					a.log.Debug("执行任务", "worker", workerID, "task", job.task.Name)
+					slog.Debug("执行任务", "worker", workerID, "task", job.task.Name)
 					start := time.Now()
 					err := job.task.Execute(taskCtx)
 					duration := time.Since(start)
@@ -184,7 +183,7 @@ func (a *App) runTasks() error {
 		select {
 		case err := <-errorChan:
 			// 有任务失败，立即取消所有任务
-			a.log.Error("任务执行失败", "error", err, "completed", len(completedTasks), "total", totalTasks)
+			slog.Error("任务执行失败", "error", err, "completed", len(completedTasks), "total", totalTasks)
 			cancel() // 取消所有工作协程
 
 			// 等待一小段时间让正在执行的任务有机会完成清理
@@ -195,14 +194,14 @@ func (a *App) runTasks() error {
 		case result, ok := <-resultChan:
 			if !ok {
 				// 所有任务都成功完成
-				a.log.Info("所有备份任务完成", "completed", len(completedTasks), "total", totalTasks)
+				slog.Info("所有备份任务完成", "completed", len(completedTasks), "total", totalTasks)
 				return nil
 			}
 
 			completedTasks = append(completedTasks, result)
 
 			if result.Error == nil {
-				a.log.Info("任务完成", "task", result.TaskName, "duration", result.Duration.String(), "progress", fmt.Sprintf("%d/%d", len(completedTasks), totalTasks))
+				slog.Info("任务完成", "task", result.TaskName, "duration", result.Duration.String(), "progress", fmt.Sprintf("%d/%d", len(completedTasks), totalTasks))
 			}
 			// 错误情况已经在 errorChan 中处理了
 		}
@@ -220,7 +219,7 @@ func (a *App) createArchive() error {
 	}
 
 	archiveFile := filepath.Join(a.cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", a.cfg.Filename, a.cfg.Timestamp))
-	a.log.Info("创建加密压缩包", "file", archiveFile)
+	slog.Info("创建加密压缩包", "file", archiveFile)
 
 	if err := archive.EncryptedBackup(a.cfg.BackupTmpDir, a.cfg.Password, archiveFile); err != nil {
 		utils.RemoveIfExists(archiveFile)
@@ -252,12 +251,12 @@ func (a *App) cleanupOldBackups() error {
 	for _, file := range files {
 		info, err := os.Stat(file)
 		if err != nil {
-			a.log.Warn("获取文件信息失败", "file", file, "error", err)
+			slog.Warn("获取文件信息失败", "file", file, "error", err)
 			continue
 		}
 		if info.ModTime().Before(cutoffTime) {
 			if err := os.Remove(file); err != nil {
-				a.log.Warn("删除旧备份失败", "file", file, "error", err)
+				slog.Warn("删除旧备份失败", "file", file, "error", err)
 			} else {
 				count++
 			}
@@ -265,7 +264,7 @@ func (a *App) cleanupOldBackups() error {
 	}
 
 	if count > 0 {
-		a.log.Info("清理旧备份完成", "count", count, "retention_days", a.cfg.RetentionDays)
+		slog.Info("清理旧备份完成", "count", count, "retention_days", a.cfg.RetentionDays)
 	}
 
 	return nil

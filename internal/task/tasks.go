@@ -13,7 +13,6 @@ import (
 // Context 包含了执行任务所需的所有依赖
 type Context struct {
 	Cfg *config.Config
-	Log *slog.Logger
 }
 
 // Task 定义了一个备份任务单元
@@ -96,11 +95,11 @@ func copyItem(ctx *Context, name string, isDir bool) error {
 	dest := filepath.Join(ctx.Cfg.BackupTmpDir, name)
 
 	if _, err := os.Stat(src); os.IsNotExist(err) {
-		ctx.Log.Warn("文件或目录不存在或为空", "name", name)
+		slog.Warn("文件或目录不存在或为空", "name", name)
 		return nil
 	}
 
-	ctx.Log.Debug(fmt.Sprintf("备份 %s -> %s", src, dest))
+	slog.Debug(fmt.Sprintf("备份 %s -> %s", src, dest))
 
 	if isDir {
 		if err := utils.CopyDir(src, dest); err != nil {
