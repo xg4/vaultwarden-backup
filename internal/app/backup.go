@@ -11,7 +11,7 @@ import (
 
 	"github.com/xg4/vaultwarden-backup/internal/archive"
 	"github.com/xg4/vaultwarden-backup/internal/config"
-	"github.com/xg4/vaultwarden-backup/internal/task"
+	"github.com/xg4/vaultwarden-backup/internal/tasks"
 	"github.com/xg4/vaultwarden-backup/internal/utils"
 )
 
@@ -84,13 +84,13 @@ type TaskResult struct {
 }
 
 type taskJob struct {
-	task  task.Task
+	task  tasks.Task
 	index int
 }
 
 func (a *App) runTasks() error {
-	taskCtx := &task.Context{Cfg: a.cfg}
-	tasks := task.GetAllTasks()
+	taskCtx := &tasks.Context{Cfg: a.cfg}
+	tasks := tasks.GetAllTasks()
 
 	// 创建带取消功能的上下文
 	ctx, cancel := context.WithCancel(context.Background())

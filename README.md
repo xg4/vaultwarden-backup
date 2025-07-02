@@ -7,12 +7,12 @@
 - **全量备份**: 自动备份 Vaultwarden 的所有重要数据：
   - SQLite 数据库 (`db.sqlite3`)
   - 配置文件 (`config.json` 和 `.env`)
-  - RSA 密钥 (`rsa_key.pem`, `rsa_key.pub.pem`)
+  - RSA 密钥 (`rsa_key*`, `rsa_key.pem`, `rsa_key.pub.pem`)
   - 附件目录 (`attachments`)
   - 发送文件目录 (`sends`)
 - **安全加密**: 使用 **AES-256-GCM** 算法加密备份文件，这是一种经过身份验证的加密模式，可提供强大的安全保障。
 - **容器化部署**: 通过 Docker 镜像提供，易于部署和管理。
-- **定时任务**: 内置 `cron` 定时任务，默认为每 6 小时执行一次备份。
+- **定时任务**: 使用 Go Ticker 实现定时任务，默认为每 6 小时执行一次备份。
 - **自动清理**: 支持设置备份保留天数，自动清理过期的备份文件。
 - **并发执行**: 支持并发执行备份任务，提升备份效率。
 
@@ -35,7 +35,7 @@
       --name vaultwarden-backup \
       -v /path/to/vaultwarden/data:/data \
       -v /path/to/backups:/backups \
-      -e ZIP_PASSWORD="your-strong-password" \
+      -e PASSWORD="your-strong-password" \
       -e RETENTION_DAYS=30 \
       --restart unless-stopped \
       ghcr.io/xg4/vaultwarden-backup:latest
@@ -47,9 +47,10 @@
 
 - `DATA_DIR`: Vaultwarden 数据目录在容器内的路径 (默认: `/data`)
 - `BACKUP_DIR`: 备份文件的存储路径 (默认: `/backups`)
-- `ZIP_PASSWORD`: **(必需)** 用于加密备份文件的密码。**请务必设置一个强密码**。如果未设置，程序将报错并退出。
+- `PASSWORD`: **(必需)** 用于加密备份文件的密码。**请务必设置一个强密码**。如果未设置，程序将报错并退出。
 - `RETENTION_DAYS`: 备份文件保留天数 (默认: `30`)。脚本会清理超过此天数的旧备份文件。设置为 `0` 则禁用自动清理。
-- `MAX_CONCURRENCY`: 执行备份任务时的最大并发数 (默认: `4`)
+- `MAX_CONCURRENCY`: 执行备份任务时的最大并发数 (默认: `6`)
+- `BACKUP_INTERVAL`: 定时备份的间隔时间 (默认: `6h`),支持 `s`, `m`, `h` 单位,例如 `8h`, `12h`。
 
 ## 手动执行
 
@@ -68,15 +69,18 @@ docker exec vaultwarden-backup vault-backup
 ```bash
 # 示例：将备份文件恢复到 /tmp/restore_test 目录
 docker exec vaultwarden-backup restore \
-  /backups/backup_20250627_120000.tar.gz \
+  /backups/vault_20250627_120000.tar.gz \
   /tmp/restore_test \
   your-strong-password
+
+# 将容器内的 /tmp/restore_test 复制到本机目录
+docker cp vaultwarden-backup:/tmp/restore_test ./my-backup
 ```
 
 ## 备份文件
 
-- 备份文件以 `backup_YYYYMMDD_HHMMSS.tar.gz` 的格式命名。
-- 文件使用 `ZIP_PASSWORD` 环境变量中设置的密码通过 **AES-256-GCM** 加密。
+- 备份文件以 `vault_YYYYMMDD_HHMMSS.tar.gz` 的格式命名。
+- 文件使用 `PASSWORD` 环境变量中设置的密码通过 **AES-256-GCM** 加密。
 
 ## 依赖
 

@@ -19,13 +19,14 @@ type Config struct {
 	RetentionDays  int
 	Password       string
 	MaxConcurrency int
+	BackupInterval time.Duration
 }
 
 // Load 从环境变量中加载配置
 func Load() (*Config, error) {
-	password := os.Getenv("ZIP_PASSWORD")
+	password := os.Getenv("PASSWORD")
 	if strings.TrimSpace(password) == "" {
-		return nil, fmt.Errorf("错误：未设置 ZIP_PASSWORD 环境变量。请设置备份密码：export ZIP_PASSWORD='your_password'")
+		return nil, fmt.Errorf("错误：未设置 PASSWORD 环境变量。请设置备份密码：export PASSWORD='your_password'")
 	}
 
 	retentionDaysStr := getEnv("RETENTION_DAYS", "30")
@@ -43,6 +44,12 @@ func Load() (*Config, error) {
 		maxConcurrency = 1
 	}
 
+	backupIntervalStr := getEnv("BACKUP_INTERVAL", "6h")
+	backupInterval, err := time.ParseDuration(backupIntervalStr)
+	if err != nil {
+		return nil, fmt.Errorf("无效的 BACKUP_INTERVAL: %v", err)
+	}
+
 	backupDir := getEnv("BACKUP_DIR", "/backups")
 	backupTmpDir := filepath.Join(backupDir, "tmp")
 
@@ -55,6 +62,7 @@ func Load() (*Config, error) {
 		RetentionDays:  retentionDays,
 		Password:       password,
 		MaxConcurrency: maxConcurrency,
+		BackupInterval: backupInterval,
 	}
 
 	return cfg, nil
