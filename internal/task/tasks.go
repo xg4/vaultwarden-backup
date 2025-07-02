@@ -2,11 +2,30 @@ package task
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
+	"github.com/xg4/vaultwarden-backup/internal/config"
 	"github.com/xg4/vaultwarden-backup/internal/utils"
 )
+
+// Context 包含了执行任务所需的所有依赖
+type Context struct {
+	Cfg *config.Config
+	Log *slog.Logger
+}
+
+// Task 定义了一个备份任务单元
+type Task struct {
+	Name     string
+	ActionFn func(ctx *Context) error
+}
+
+// Execute 执行单个任务
+func (t *Task) Execute(ctx *Context) error {
+	return t.ActionFn(ctx)
+}
 
 // GetAllTasks 返回所有预定义的备份任务列表
 func GetAllTasks() []Task {
