@@ -11,7 +11,7 @@ import (
 	"github.com/xg4/vaultwarden-backup/internal/logger"
 )
 
-func main() {
+func bootstrap() {
 	// 初始化日志记录器
 	logger.InitLogger(slog.LevelInfo)
 	l := logger.GetLogger()
@@ -39,4 +39,15 @@ func main() {
 	duration := time.Since(startTime).Seconds()
 	l.Info(fmt.Sprintf("用时: %.2f 秒", duration))
 	l.Info("==================== 备份完成 ====================")
+}
+
+func main() {
+	bootstrap()
+
+	ticker := time.NewTicker(6 * time.Hour)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		bootstrap()
+	}
 }

@@ -37,7 +37,4 @@ RUN chmod +x /entrypoint.sh && \
     chmod +x /usr/local/bin/backup && \
     chmod +x /usr/local/bin/restore
 
-# 设置定时任务调用 Go 程序
-RUN echo "0 */6 * * * /usr/local/bin/vault-backup" > /etc/crontabs/root
-
 ENTRYPOINT ["/entrypoint.sh"]
