@@ -17,17 +17,18 @@ import (
 
 // App 封装了备份应用的状态和依赖
 type App struct {
-	cfg *config.Config
+	cfg       *config.Config
+	Timestamp string
 }
 
 // New 创建一个新的 App 实例
-func New(cfg *config.Config) *App {
-	return &App{cfg: cfg}
+func New(cfg *config.Config, startTime time.Time) *App {
+	return &App{cfg: cfg, Timestamp: startTime.Format("20060102_150405")}
 }
 
 // Run 执行完整的备份和清理流程
 func (a *App) Run() error {
-	slog.Info("开始备份流程", "timestamp", a.cfg.Timestamp)
+	slog.Info("开始备份流程", "timestamp", a.Timestamp)
 
 	// 1. 运行前检查
 	if err := utils.ValidateDirectories(a.cfg); err != nil {
@@ -218,7 +219,7 @@ func (a *App) createArchive() error {
 		return fmt.Errorf("备份目录为空")
 	}
 
-	archiveFile := filepath.Join(a.cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", a.cfg.Filename, a.cfg.Timestamp))
+	archiveFile := filepath.Join(a.cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", a.cfg.Filename, a.Timestamp))
 	slog.Info("创建加密压缩包", "file", archiveFile)
 
 	if err := archive.EncryptedBackup(a.cfg.BackupTmpDir, a.cfg.Password, archiveFile); err != nil {
@@ -245,6 +246,7 @@ func (a *App) cleanupOldBackups() error {
 	if err != nil {
 		return fmt.Errorf("查找旧备份失败: %w", err)
 	}
+	slog.Info("找到备份文件", "count", len(files), "pattern", globPattern)
 
 	cutoffTime := time.Now().AddDate(0, 0, -a.cfg.RetentionDays)
 	count := 0

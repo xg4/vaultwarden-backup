@@ -15,7 +15,6 @@ type Config struct {
 	BackupTmpDir   string
 	DataDir        string
 	Filename       string
-	Timestamp      string
 	RetentionDays  int
 	Password       string
 	MaxConcurrency int
@@ -58,7 +57,6 @@ func Load() (*Config, error) {
 		BackupTmpDir:   backupTmpDir,
 		DataDir:        getEnv("DATA_DIR", "/data"),
 		Filename:       getEnv("FILENAME", "vault"),
-		Timestamp:      time.Now().Format("20060102_150405"),
 		RetentionDays:  retentionDays,
 		Password:       password,
 		MaxConcurrency: maxConcurrency,

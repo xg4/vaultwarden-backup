@@ -35,7 +35,7 @@
       --name vaultwarden-backup \
       -v /path/to/vaultwarden/data:/data \
       -v /path/to/backups:/backups \
-      -e PASSWORD="your-strong-password" \
+      -e PASSWORD=your-password \
       -e RETENTION_DAYS=30 \
       --restart unless-stopped \
       ghcr.io/xg4/vaultwarden-backup:latest

@@ -16,7 +16,7 @@ func bootstrap(cfg *config.Config) {
 	slog.Info("==================== 备份开始 ====================")
 
 	// 创建并运行备份应用
-	backupApp := app.New(cfg)
+	backupApp := app.New(cfg, startTime)
 	if err := backupApp.Run(); err != nil {
 		slog.Error(fmt.Sprintf("备份过程中发生错误: %v", err))
 		slog.Error("==================== 备份失败 ====================")
