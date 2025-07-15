@@ -1,4 +1,4 @@
-package utils
+package tasks
 
 import (
 	"fmt"
@@ -6,10 +6,18 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/xg4/vaultwarden-backup/internal/config"
 	"golang.org/x/sys/unix"
 )
 
-func CheckDiskSpace(src, dst string) error {
+type CheckDiskSpace struct{}
+
+func (CheckDiskSpace) Name() string {
+	return "检查磁盘空间"
+}
+
+func (CheckDiskSpace) Run(cfg *config.Config) error {
+	src, dst := cfg.DataDir, cfg.BackupDir
 	var dataSize int64
 	err := filepath.Walk(src, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {

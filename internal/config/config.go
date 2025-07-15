@@ -17,7 +17,6 @@ type Config struct {
 	Filename       string
 	RetentionDays  int
 	Password       string
-	MaxConcurrency int
 	BackupInterval time.Duration
 }
 
@@ -34,16 +33,7 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("无效的 RETENTION_DAYS: %v", err)
 	}
 
-	maxConcurrencyStr := getEnv("MAX_CONCURRENCY", "6")
-	maxConcurrency, err := strconv.Atoi(maxConcurrencyStr)
-	if err != nil {
-		return nil, fmt.Errorf("无效的 MAX_CONCURRENCY: %v", err)
-	}
-	if maxConcurrency <= 0 {
-		maxConcurrency = 1
-	}
-
-	backupIntervalStr := getEnv("BACKUP_INTERVAL", "6h")
+	backupIntervalStr := getEnv("BACKUP_INTERVAL", "1h")
 	backupInterval, err := time.ParseDuration(backupIntervalStr)
 	if err != nil {
 		return nil, fmt.Errorf("无效的 BACKUP_INTERVAL: %v", err)
@@ -59,7 +49,6 @@ func Load() (*Config, error) {
 		Filename:       getEnv("FILENAME", "vault"),
 		RetentionDays:  retentionDays,
 		Password:       password,
-		MaxConcurrency: maxConcurrency,
 		BackupInterval: backupInterval,
 	}
 
