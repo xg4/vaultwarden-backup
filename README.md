@@ -49,8 +49,7 @@
 - `BACKUP_DIR`: 备份文件的存储路径 (默认: `/backups`)
 - `PASSWORD`: **(必需)** 用于加密备份文件的密码。**请务必设置一个强密码**。如果未设置，程序将报错并退出。
 - `RETENTION_DAYS`: 备份文件保留天数 (默认: `30`)。脚本会清理超过此天数的旧备份文件。设置为 `0` 则禁用自动清理。
-- `MAX_CONCURRENCY`: 执行备份任务时的最大并发数 (默认: `6`)
-- `BACKUP_INTERVAL`: 定时备份的间隔时间 (默认: `6h`),支持 `s`, `m`, `h` 单位,例如 `8h`, `12h`。
+- `BACKUP_INTERVAL`: 定时备份的间隔时间 (默认: `1h`),支持 `s`, `m`, `h` 单位,例如 `8h`, `12h`。
 
 ## 手动执行
 
@@ -59,22 +58,26 @@
 ### 手动备份
 
 ```bash
-docker exec vaultwarden-backup vault-backup
+docker exec vaultwarden-backup vaultb
 ```
 
 ### 手动恢复
 
-项目提供了 `restore` 命令用于解密并解压备份文件。
+项目提供了 `vaultr` 命令用于解密并解压备份文件。该命令支持以下参数：
+
+- `-i`, `-input`: **(必需)** 输入的加密备份文件路径。
+- `-o`, `-output`: **(必需)** 解密后文件的输出目录路径。
+- `-p`, `-password`: **(必需)** 用于解密的密码。
+- `-v`, `-verbose`: 启用详细输出模式。
+- `-h`, `-help`: 显示帮助信息。
 
 ```bash
-# 示例：将备份文件恢复到 /tmp/restore_test 目录
-docker exec vaultwarden-backup restore \
-  /backups/vault_20250627_120000.tar.gz \
-  /tmp/restore_test \
-  your-strong-password
-
-# 将容器内的 /tmp/restore_test 复制到本机目录
-docker cp vaultwarden-backup:/tmp/restore_test ./my-backup
+docker run --rm -it \
+  -v /path/to/backups:/backups \
+  ghcr.io/xg4/vaultwarden-backup vaultr \
+  -i /backups/vault_YYYYMMDD_HHMMSS.tar.gz \
+  -o /backups/restored \
+  -p your_password
 ```
 
 ## 备份文件

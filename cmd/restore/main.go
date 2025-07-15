@@ -19,11 +19,11 @@ var (
 
 func init() {
 	// 添加简写选项
-	flag.StringVar(inputFile, "i", "", "输入的加密备份文件路径 (必需)")
-	flag.StringVar(outputDir, "o", "", "输出目录路径 (必需)")
-	flag.StringVar(password, "p", "", "解密密码 (必需)")
-	flag.BoolVar(verbose, "v", false, "启用详细输出")
-	flag.BoolVar(help, "h", false, "显示帮助信息")
+	flag.StringVar(inputFile, "i", "", "")
+	flag.StringVar(outputDir, "o", "", "")
+	flag.StringVar(password, "p", "", "")
+	flag.BoolVar(verbose, "v", false, "")
+	flag.BoolVar(help, "h", false, "")
 }
 
 func usage() {
