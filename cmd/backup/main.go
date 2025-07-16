@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -23,17 +22,16 @@ func main() {
 	// 加载配置
 	cfg, err := config.Load()
 	if err != nil {
-		slog.Error(fmt.Sprintf("配置加载失败: %v", err))
+		slog.Error("配置加载失败", "error", err)
 		os.Exit(1)
 	}
 
-	// 打印关键配置
-	slog.Info("-------------------- 环境变量 --------------------")
-	slog.Info(fmt.Sprintf("备份目录 (BACKUP_DIR): %s", cfg.BackupDir))
-	slog.Info(fmt.Sprintf("数据目录 (DATA_DIR): %s", cfg.DataDir))
-	slog.Info(fmt.Sprintf("备份保留 (RETENTION_DAYS): %dd", cfg.RetentionDays))
-	slog.Info(fmt.Sprintf("备份间隔 (BACKUP_INTERVAL): %v", cfg.BackupInterval))
-	slog.Info("--------------------------------------------------")
+	// 显示关键配置信息
+	slog.Info("启动备份服务",
+		"data_dir", cfg.DataDir,
+		"backup_dir", cfg.BackupDir,
+		"interval", cfg.BackupInterval,
+		"retention_days", cfg.RetentionDays)
 
 	// 创建并运行备份应用
 	backupApp := app.New(cfg)

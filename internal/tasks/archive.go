@@ -28,7 +28,7 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 	}
 
 	archiveFile := filepath.Join(cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", cfg.Filename, c.Timestamp))
-	slog.Debug("创建加密压缩包", "file", archiveFile)
+	slog.Debug("创建加密归档", "file", filepath.Base(archiveFile))
 
 	if err := archive.EncryptedBackup(cfg.BackupTmpDir, cfg.Password, archiveFile); err != nil {
 		utils.RemoveIfExists(archiveFile)

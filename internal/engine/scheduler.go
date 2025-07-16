@@ -48,15 +48,14 @@ func (s *Scheduler) Start() error {
 
 // handleTask 执行单个任务并记录执行时间和结果
 func handleTask(t Task, cfg *config.Config) error {
-	slog.Debug("开始执行", "task", t.Name())
 	start := time.Now()
 	err := t.Run(cfg)
 	duration := time.Since(start)
 	if err != nil {
-		slog.Error("执行失败", "task", t.Name(), "error", err)
+		slog.Error("任务失败", "task", t.Name(), "error", err, "duration", duration)
 		return err
 	}
-	slog.Info("执行成功", "task", t.Name(), "duration", duration)
+	slog.Info("✓", "task", t.Name(), "duration", duration)
 	return nil
 }
 

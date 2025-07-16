@@ -25,19 +25,19 @@ func (c *CleanupTask) Run(cfg *config.Config) error {
 	if err != nil {
 		return fmt.Errorf("查找旧备份失败: %w", err)
 	}
-	slog.Debug("找到备份文件", "count", len(files), "pattern", globPattern)
+	slog.Debug("扫描备份文件", "found", len(files))
 
 	cutoffTime := time.Now().AddDate(0, 0, -cfg.RetentionDays)
 	count := 0
 	for _, file := range files {
 		info, err := os.Stat(file)
 		if err != nil {
-			slog.Warn("获取文件信息失败", "file", file, "error", err)
+			slog.Warn("无法读取文件信息", "file", filepath.Base(file), "error", err)
 			continue
 		}
 		if info.ModTime().Before(cutoffTime) {
 			if err := os.Remove(file); err != nil {
-				slog.Warn("删除旧备份失败", "file", file, "error", err)
+				slog.Warn("删除失败", "file", filepath.Base(file), "error", err)
 			} else {
 				count++
 			}
@@ -45,7 +45,7 @@ func (c *CleanupTask) Run(cfg *config.Config) error {
 	}
 
 	if count > 0 {
-		slog.Info("清理完成", "count", count, "retention_days", cfg.RetentionDays)
+		slog.Info("清理过期备份", "deleted", count, "retention_days", cfg.RetentionDays)
 	}
 
 	return nil

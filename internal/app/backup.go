@@ -28,12 +28,11 @@ func (a *App) Run() error {
 	// 记录备份总耗时
 	defer func(t time.Time) {
 		duration := time.Since(t)
-		slog.Info("备份用时", "duration", duration)
+		slog.Info("备份完成", "duration", duration)
 	}(startTime)
 
 	timestamp := startTime.Format("20060102_150405")
-	slog.Info("备份时间", "timestamp", timestamp)
-	slog.Info("==================== 备份开始 ====================")
+	slog.Info("开始备份", "timestamp", timestamp)
 
 	s := engine.New(a.cfg)
 
@@ -66,11 +65,8 @@ func (a *App) Run() error {
 	defer os.RemoveAll(a.cfg.BackupTmpDir)
 
 	if err := s.Start(); err != nil {
-		slog.Error("备份过程中发生错误", "error", err)
-		slog.Error("==================== 备份失败 ====================")
+		slog.Error("备份失败", "error", err)
 		return err
 	}
-
-	slog.Info("==================== 备份完成 ====================")
 	return nil
 }
