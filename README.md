@@ -1,5 +1,7 @@
 # Vaultwarden 备份工具
 
+[English](README_EN.md) | 中文
+
 一个简单易用的 [Vaultwarden](https://github.com/dani-garcia/vaultwarden) 自动备份工具，支持定时备份、加密存储和一键恢复。
 
 ## ✨ 特性
