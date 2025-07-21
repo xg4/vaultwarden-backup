@@ -32,20 +32,27 @@ func Load() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("无效的 RETENTION_DAYS: %v", err)
 	}
+	if retentionDays < 0 {
+		return nil, fmt.Errorf("RETENTION_DAYS 不能为负数: %d", retentionDays)
+	}
 
 	backupIntervalStr := getEnv("BACKUP_INTERVAL", "1h")
 	backupInterval, err := time.ParseDuration(backupIntervalStr)
 	if err != nil {
 		return nil, fmt.Errorf("无效的 BACKUP_INTERVAL: %v", err)
 	}
+	if backupInterval < time.Minute {
+		return nil, fmt.Errorf("BACKUP_INTERVAL 不能小于1分钟: %v", backupInterval)
+	}
 
 	backupDir := getEnv("BACKUP_DIR", "/backups")
+	dataDir := getEnv("DATA_DIR", "/data")
 	backupTmpDir := filepath.Join(backupDir, "tmp")
 
 	cfg := &Config{
 		BackupDir:      backupDir,
 		BackupTmpDir:   backupTmpDir,
-		DataDir:        getEnv("DATA_DIR", "/data"),
+		DataDir:        dataDir,
 		Filename:       getEnv("FILENAME", "vault"),
 		RetentionDays:  retentionDays,
 		Password:       password,

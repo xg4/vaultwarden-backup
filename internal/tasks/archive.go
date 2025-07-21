@@ -30,15 +30,26 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 	archiveFile := filepath.Join(cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", cfg.Filename, c.Timestamp))
 	slog.Debug("创建加密归档", "file", filepath.Base(archiveFile))
 
+	// 创建加密归档
 	if err := archive.EncryptedBackup(cfg.BackupTmpDir, cfg.Password, archiveFile); err != nil {
 		utils.RemoveIfExists(archiveFile)
 		return fmt.Errorf("创建加密归档失败: %w", err)
 	}
 
-	if err := archive.DecryptBackup(archiveFile, cfg.Password, cfg.BackupTmpDir); err != nil {
+	// 验证归档完整性 - 解密到单独的验证目录
+	verifyDir := filepath.Join(cfg.BackupDir, "verify_tmp")
+	defer utils.RemoveIfExists(verifyDir) // 确保验证目录被清理
+
+	if err := utils.EnsureDir(verifyDir); err != nil {
 		utils.RemoveIfExists(archiveFile)
-		return fmt.Errorf("解密归档失败: %w", err)
+		return fmt.Errorf("创建验证目录失败: %w", err)
 	}
 
+	if err := archive.DecryptBackup(archiveFile, cfg.Password, verifyDir); err != nil {
+		utils.RemoveIfExists(archiveFile)
+		return fmt.Errorf("归档验证失败: %w", err)
+	}
+
+	slog.Debug("归档验证成功", "file", filepath.Base(archiveFile))
 	return nil
 }
