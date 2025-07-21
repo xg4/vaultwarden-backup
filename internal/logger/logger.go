@@ -31,10 +31,6 @@ func getLogLevel() slog.Level {
 	case "ERROR", "error":
 		return slog.LevelError
 	default:
-		// 生产环境默认使用 INFO 级别
-		if os.Getenv("ENV") == "production" {
-			return slog.LevelWarn
-		}
 		return slog.LevelInfo
 	}
 }

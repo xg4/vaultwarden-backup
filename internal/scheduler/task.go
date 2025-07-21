@@ -1,4 +1,4 @@
-package engine
+package scheduler
 
 import (
 	"github.com/xg4/vaultwarden-backup/internal/config"

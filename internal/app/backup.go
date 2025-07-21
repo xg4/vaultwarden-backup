@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/xg4/vaultwarden-backup/internal/config"
-	"github.com/xg4/vaultwarden-backup/internal/engine"
+	"github.com/xg4/vaultwarden-backup/internal/scheduler"
 	"github.com/xg4/vaultwarden-backup/internal/tasks"
 )
 
@@ -34,7 +34,7 @@ func (a *App) Run() error {
 	timestamp := startTime.Format("20060102_150405")
 	slog.Info("🚀 开始备份", "timestamp", timestamp)
 
-	s := engine.New(a.cfg)
+	s := scheduler.New(a.cfg)
 
 	// 阶段1: 环境检查和准备
 	s.Register(
