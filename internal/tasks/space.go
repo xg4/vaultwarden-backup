@@ -46,7 +46,7 @@ func (CheckDiskSpace) Run(cfg *config.Config) error {
 	availableSpace := int64(stat.Bavail) * int64(stat.Bsize) // 修复类型转换问题
 	requiredSpace := dataSize * 2                            // 预留2倍空间用于压缩和临时文件
 
-	slog.Debug("磁盘空间检查", "required", formatBytes(requiredSpace), "available", formatBytes(availableSpace))
+	slog.Debug("💾 磁盘空间检查", "required", formatBytes(requiredSpace), "available", formatBytes(availableSpace))
 
 	if availableSpace < requiredSpace {
 		return fmt.Errorf("磁盘空间不足: 需要 %s, 可用 %s", formatBytes(requiredSpace), formatBytes(availableSpace))

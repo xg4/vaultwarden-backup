@@ -21,16 +21,16 @@ func main() {
 	// 加载配置
 	cfg, err := config.Load()
 	if err != nil {
-		slog.Error("配置加载失败", "error", err)
+		slog.Error("🚨 配置加载失败", "error", err)
 		os.Exit(1)
 	}
 
 	// 显示关键配置信息
-	slog.Info("启动备份服务",
-		"data_dir", cfg.DataDir,
-		"backup_dir", cfg.BackupDir,
-		"interval", cfg.BackupInterval,
-		"retention_days", cfg.RetentionDays)
+	slog.Info("🚀 启动备份服务",
+		"DATA_DIR", cfg.DataDir,
+		"BACKUP_DIR", cfg.BackupDir,
+		"BACKUP_INTERVAL", cfg.BackupInterval,
+		"RETENTION_DAYS", cfg.RetentionDays)
 
 	// 设置优雅关闭
 	ctx, cancel := context.WithCancel(context.Background())
@@ -44,16 +44,16 @@ func main() {
 	backupApp := app.New(cfg)
 
 	// 执行初始备份
-	slog.Info("执行初始备份")
+	slog.Info("📦 执行初始备份")
 	if err := backupApp.Run(); err != nil {
-		slog.Error("初始备份失败", "error", err)
+		slog.Error("🚨 初始备份失败", "error", err)
 	}
 
 	// 启动定时备份
 	ticker := time.NewTicker(cfg.BackupInterval)
 	defer ticker.Stop()
 
-	slog.Info("定时备份已启动", "interval", cfg.BackupInterval)
+	slog.Info("⏰ 定时备份已启动", "interval", cfg.BackupInterval)
 
 	// 用于跟踪正在进行的备份
 	var backupInProgress bool
@@ -62,15 +62,15 @@ func main() {
 	for {
 		select {
 		case <-ctx.Done():
-			slog.Info("收到停止信号，正在关闭...")
+			slog.Info("🛑 收到停止信号，正在关闭...")
 			return
 		case <-sigChan:
-			slog.Info("收到系统信号，正在优雅关闭...")
+			slog.Info("🔄 收到系统信号，正在优雅关闭...")
 
 			// 检查是否有备份正在进行
 			backupMutex.Lock()
 			if backupInProgress {
-				slog.Info("等待当前备份任务完成...")
+				slog.Info("⏳ 等待当前备份任务完成...")
 				backupMutex.Unlock()
 
 				// 等待备份完成，最多等待10 秒
@@ -88,7 +88,7 @@ func main() {
 
 					select {
 					case <-timeout.C:
-						slog.Warn("等待备份完成超时，强制退出")
+						slog.Warn("⚠️ 等待备份完成超时，强制退出")
 						cancel()
 						return
 					default:
@@ -98,21 +98,21 @@ func main() {
 				backupMutex.Unlock()
 			}
 
-			slog.Info("备份任务已完成，安全退出")
+			slog.Info("✅ 备份任务已完成，安全退出")
 			cancel()
 			return
 		case <-ticker.C:
 			// 检查是否已经有备份在进行
 			backupMutex.Lock()
 			if backupInProgress {
-				slog.Debug("跳过定时备份，上一个备份仍在进行中")
+				slog.Debug("⏭️ 跳过定时备份，上一个备份仍在进行中")
 				backupMutex.Unlock()
 				continue
 			}
 			backupInProgress = true
 			backupMutex.Unlock()
 
-			slog.Debug("开始定时备份")
+			slog.Debug("🔄 开始定时备份")
 			go func() {
 				defer func() {
 					backupMutex.Lock()
@@ -121,7 +121,7 @@ func main() {
 				}()
 
 				if err := backupApp.Run(); err != nil {
-					slog.Error("定时备份失败", "error", err)
+					slog.Error("🚨 定时备份失败", "error", err)
 				}
 			}()
 		}

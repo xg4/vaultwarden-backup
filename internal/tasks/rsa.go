@@ -19,17 +19,17 @@ func (RSATask) Run(cfg *config.Config) error {
 	// 查找所有 RSA 密钥文件
 	matches, err := filepath.Glob(filepath.Join(cfg.DataDir, "rsa_key*"))
 	if err != nil {
-		return fmt.Errorf("查找RSA密钥失败: %w", err)
+		return fmt.Errorf("🔍 查找RSA密钥失败: %w", err)
 	}
 	if len(matches) == 0 {
-		return fmt.Errorf("RSA密钥不存在")
+		return fmt.Errorf("🔑 RSA密钥不存在")
 	}
 
 	// 逐个复制密钥文件
 	for _, file := range matches {
 		destFile := filepath.Join(cfg.BackupTmpDir, filepath.Base(file))
 		if err := utils.CopyFile(file, destFile); err != nil {
-			return fmt.Errorf("备份RSA密钥 %s 失败: %w", file, err)
+			return fmt.Errorf("🔒 备份RSA密钥 %s 失败: %w", file, err)
 		}
 	}
 	return nil

@@ -52,10 +52,10 @@ func handleTask(t Task, cfg *config.Config) error {
 	err := t.Run(cfg)
 	duration := time.Since(start)
 	if err != nil {
-		slog.Error("任务失败", "task", t.Name(), "error", err, "duration", duration)
+		slog.Error("❌ 任务失败", "task", t.Name(), "error", err)
 		return err
 	}
-	slog.Info("✓", "task", t.Name(), "duration", duration)
+	slog.Info("✅ 任务完成", "task", t.Name(), "duration", duration)
 	return nil
 }
 

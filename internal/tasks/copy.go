@@ -30,9 +30,11 @@ func copyItem(cfg *config.Config, name string) error {
 	// 检查源文件/目录是否存在
 	fileInfo, err := os.Stat(src)
 	if os.IsNotExist(err) {
-		slog.Debug("跳过不存在的文件", "path", name)
+		slog.Debug("🤔 跳过不存在的文件", "path", name)
 		return nil // 文件不存在时不报错，只是跳过
 	}
+
+	slog.Debug(fmt.Sprintf("📦 备份 %s -> %s", src, dest))
 
 	// 根据文件类型选择复制方式
 	if fileInfo.IsDir() {

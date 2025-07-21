@@ -21,7 +21,7 @@ func (DatabaseTask) Run(cfg *config.Config) error {
 
 	// 检查源数据库文件是否存在
 	if _, err := os.Stat(srcDB); os.IsNotExist(err) {
-		return fmt.Errorf("数据库文件 %s 不存在", srcDB)
+		return fmt.Errorf("❌ 数据库文件 %s 不存在", srcDB)
 	}
 
 	// 使用 sqlite3 命令进行数据库备份

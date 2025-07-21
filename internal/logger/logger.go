@@ -15,7 +15,7 @@ func Setup() {
 	handler := slog.NewTextHandler(os.Stdout, opts)
 	slog.SetDefault(slog.New(handler))
 
-	slog.Info("日志级别已设置", "level", logLevel.String())
+	slog.Info("📝 日志级别已设置", "level", logLevel.String())
 }
 
 // getLogLevel 根据环境变量设置日志级别

@@ -28,7 +28,7 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 	}
 
 	archiveFile := filepath.Join(cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", cfg.Filename, c.Timestamp))
-	slog.Debug("创建加密归档", "file", filepath.Base(archiveFile))
+	slog.Debug("🔐 创建加密归档", "file", filepath.Base(archiveFile))
 
 	// 创建加密归档
 	if err := archive.EncryptedBackup(cfg.BackupTmpDir, cfg.Password, archiveFile); err != nil {
@@ -50,6 +50,6 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 		return fmt.Errorf("归档验证失败: %w", err)
 	}
 
-	slog.Debug("归档验证成功", "file", filepath.Base(archiveFile))
+	slog.Debug("✅ 归档验证成功", "file", filepath.Base(archiveFile))
 	return nil
 }
