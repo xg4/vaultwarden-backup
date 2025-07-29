@@ -47,7 +47,7 @@ func Load() (*Config, error) {
 
 	backupDir := getEnv("BACKUP_DIR", "/backups")
 	dataDir := getEnv("DATA_DIR", "/data")
-	tmpDir := filepath.Join(backupDir, "tmp")
+	tmpDir := filepath.Join(backupDir, "/.tmp")
 
 	cfg := &Config{
 		BackupDir:      backupDir,

@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"log/slog"
 	"path/filepath"
 
 	"github.com/xg4/vaultwarden-backup/internal/config"
@@ -27,6 +28,7 @@ func (RSATask) Run(cfg *config.Config) error {
 
 	// 逐个复制密钥文件
 	for _, file := range matches {
+		slog.Debug("✨ 找到 rsa_key* 文件", "file", filepath.Base(file))
 		destFile := filepath.Join(cfg.TmpDir, filepath.Base(file))
 		if err := utils.CopyFile(file, destFile); err != nil {
 			return fmt.Errorf("🔒 备份RSA密钥 %s 失败: %w", file, err)

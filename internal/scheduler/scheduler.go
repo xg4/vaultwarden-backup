@@ -55,7 +55,7 @@ func handleTask(t Task, cfg *config.Config) error {
 		slog.Error("❌ 任务失败", "task", t.Name(), "error", err)
 		return err
 	}
-	slog.Info("✅ 任务完成", "task", t.Name(), "duration", duration)
+	slog.Debug("✅ 任务完成", "task", t.Name(), "duration", duration)
 	return nil
 }
 

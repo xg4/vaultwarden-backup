@@ -36,8 +36,20 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 		return fmt.Errorf("创建加密归档失败: %w", err)
 	}
 
-	// 验证归档完整性 - 解密到单独的验证目录
-	verifyDir := filepath.Join(cfg.BackupDir, "verify_tmp")
+	// 验证归档完整性
+	slog.Debug("🔎 开始验证归档完整性")
+
+	// 计算原始备份目录的哈希值
+	slog.Debug("🧮 计算原始目录哈希", "dir", cfg.TmpDir)
+	sourceHash, err := utils.HashDir(cfg.TmpDir)
+	if err != nil {
+		utils.RemoveIfExists(archiveFile)
+		return fmt.Errorf("计算原始目录哈希失败: %w", err)
+	}
+	slog.Debug("✨ 原始目录哈希", "hash", sourceHash)
+
+	// 解密到单独的验证目录
+	verifyDir := filepath.Join(cfg.BackupDir, "/.verify_tmp")
 	defer utils.RemoveIfExists(verifyDir) // 确保验证目录被清理
 
 	if err := utils.EnsureDir(verifyDir); err != nil {
@@ -47,7 +59,22 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 
 	if err := archive.DecryptBackup(archiveFile, cfg.Password, verifyDir); err != nil {
 		utils.RemoveIfExists(archiveFile)
-		return fmt.Errorf("归档验证失败: %w", err)
+		return fmt.Errorf("解密归档失败: %w", err)
+	}
+
+	// 计算验证目录的哈希值
+	slog.Debug("🧮 计算验证目录哈希", "dir", verifyDir)
+	verifyHash, err := utils.HashDir(verifyDir)
+	if err != nil {
+		utils.RemoveIfExists(archiveFile)
+		return fmt.Errorf("计算验证目录哈希失败: %w", err)
+	}
+	slog.Debug("✨ 验证目录哈希", "hash", verifyHash)
+
+	// 比较哈希值
+	if sourceHash != verifyHash {
+		utils.RemoveIfExists(archiveFile)
+		return fmt.Errorf("归档完整性验证失败: 哈希值不匹配")
 	}
 
 	slog.Debug("✅ 归档验证成功", "file", filepath.Base(archiveFile))

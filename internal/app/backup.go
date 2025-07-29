@@ -25,11 +25,6 @@ func New(cfg *config.Config) *App {
 // Run 执行完整的备份流程：检查 -> 备份 -> 打包 -> 清理
 func (a *App) Run() error {
 	startTime := time.Now()
-	// 记录备份总耗时
-	defer func(t time.Time) {
-		duration := time.Since(t)
-		slog.Info("✅ 备份完成", "duration", duration)
-	}(startTime)
 
 	timestamp := startTime.Format("20060102_150405")
 	slog.Info("🚀 开始备份", "timestamp", timestamp)
@@ -62,11 +57,17 @@ func (a *App) Run() error {
 	s.Register(&tasks.CleanupTask{})
 
 	// 确保临时目录在函数结束时被清理
-	defer os.RemoveAll(a.cfg.TmpDir)
+	defer func() {
+		slog.Debug("🧽 清理临时文件", "tmpDir", a.cfg.TmpDir)
+		os.RemoveAll(a.cfg.TmpDir)
+	}()
 
 	if err := s.Start(); err != nil {
 		slog.Error("🚨 备份失败", "error", err)
 		return err
 	}
+
+	duration := time.Since(startTime)
+	slog.Info("✅ 备份完成", "duration", duration)
 	return nil
 }
