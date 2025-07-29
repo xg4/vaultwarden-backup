@@ -12,7 +12,7 @@ import (
 // Config 保存了应用的所有配置
 type Config struct {
 	BackupDir      string
-	BackupTmpDir   string
+	TmpDir         string
 	DataDir        string
 	Filename       string
 	RetentionDays  int
@@ -47,12 +47,12 @@ func Load() (*Config, error) {
 
 	backupDir := getEnv("BACKUP_DIR", "/backups")
 	dataDir := getEnv("DATA_DIR", "/data")
-	backupTmpDir := filepath.Join(backupDir, "tmp")
+	tmpDir := filepath.Join(backupDir, "tmp")
 
 	cfg := &Config{
 		BackupDir:      backupDir,
-		BackupTmpDir:   backupTmpDir,
 		DataDir:        dataDir,
+		TmpDir:         tmpDir,
 		Filename:       getEnv("FILENAME", "vault"),
 		RetentionDays:  retentionDays,
 		Password:       password,

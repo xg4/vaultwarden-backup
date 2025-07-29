@@ -25,7 +25,7 @@ func (c *CopyTask) Run(cfg *config.Config) error {
 // copyItem 复制指定的文件或目录到备份临时目录
 func copyItem(cfg *config.Config, name string) error {
 	src := filepath.Join(cfg.DataDir, name)
-	dest := filepath.Join(cfg.BackupTmpDir, name)
+	dest := filepath.Join(cfg.TmpDir, name)
 
 	// 检查源文件/目录是否存在
 	fileInfo, err := os.Stat(src)

@@ -17,7 +17,7 @@ func (DatabaseTask) Name() string { return "备份数据库" }
 // Run 备份 SQLite 数据库文件并验证完整性
 func (DatabaseTask) Run(cfg *config.Config) error {
 	srcDB := filepath.Join(cfg.DataDir, "db.sqlite3")
-	destDB := filepath.Join(cfg.BackupTmpDir, "db.sqlite3")
+	destDB := filepath.Join(cfg.TmpDir, "db.sqlite3")
 
 	// 检查源数据库文件是否存在
 	if _, err := os.Stat(srcDB); os.IsNotExist(err) {

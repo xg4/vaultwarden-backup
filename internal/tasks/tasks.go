@@ -16,11 +16,11 @@ func (CreateBackupTmpDir) Name() string {
 
 func (CreateBackupTmpDir) Run(cfg *config.Config) error {
 	// 安全地清理并创建备份目录
-	if err := utils.RemoveIfExists(cfg.BackupTmpDir); err != nil {
-		return fmt.Errorf("🗑️ 无法清理临时备份目录: %s, 错误: %v", cfg.BackupTmpDir, err)
+	if err := utils.RemoveIfExists(cfg.TmpDir); err != nil {
+		return fmt.Errorf("🗑️ 无法清理临时备份目录: %s, 错误: %v", cfg.TmpDir, err)
 	}
-	if err := utils.EnsureDir(cfg.BackupTmpDir); err != nil {
-		return fmt.Errorf("📁 无法创建临时备份目录: %s, 错误: %v", cfg.BackupTmpDir, err)
+	if err := utils.EnsureDir(cfg.TmpDir); err != nil {
+		return fmt.Errorf("📁 无法创建临时备份目录: %s, 错误: %v", cfg.TmpDir, err)
 	}
 	return nil
 }

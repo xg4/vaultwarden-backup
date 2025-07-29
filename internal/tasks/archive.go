@@ -18,7 +18,7 @@ type ArchiveTask struct {
 func (c *ArchiveTask) Name() string { return "打包/压缩/加密" }
 
 func (c *ArchiveTask) Run(cfg *config.Config) error {
-	entries, err := os.ReadDir(cfg.BackupTmpDir)
+	entries, err := os.ReadDir(cfg.TmpDir)
 	if err != nil {
 		return fmt.Errorf("读取备份目录失败: %w", err)
 	}
@@ -31,7 +31,7 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 	slog.Debug("🔐 创建加密归档", "file", filepath.Base(archiveFile))
 
 	// 创建加密归档
-	if err := archive.EncryptedBackup(cfg.BackupTmpDir, cfg.Password, archiveFile); err != nil {
+	if err := archive.EncryptedBackup(cfg.TmpDir, cfg.Password, archiveFile); err != nil {
 		utils.RemoveIfExists(archiveFile)
 		return fmt.Errorf("创建加密归档失败: %w", err)
 	}

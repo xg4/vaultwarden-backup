@@ -62,7 +62,7 @@ func (a *App) Run() error {
 	s.Register(&tasks.CleanupTask{})
 
 	// 确保临时目录在函数结束时被清理
-	defer os.RemoveAll(a.cfg.BackupTmpDir)
+	defer os.RemoveAll(a.cfg.TmpDir)
 
 	if err := s.Start(); err != nil {
 		slog.Error("🚨 备份失败", "error", err)
