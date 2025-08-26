@@ -26,7 +26,8 @@ docker run -d \
   -v /path/to/vaultwarden/data:/data \
   -v /path/to/backups:/backups \
   -e PASSWORD=your-strong-password \
-  -e RETENTION_DAYS=30 \
+  -e BACKUP_INTERVAL=6h \
+  -e PRUNE_BACKUPS_DAYS=7 \
   --restart unless-stopped \
   ghcr.io/xg4/vaultwarden-backup:latest
 ```
@@ -35,13 +36,15 @@ docker run -d \
 
 ## ⚙️ 配置选项
 
-| 环境变量          | 默认值     | 说明                                         |
-| ----------------- | ---------- | -------------------------------------------- |
-| `PASSWORD`        | _必需_     | 🔑 备份文件加密密码（请设置强密码）          |
-| `BACKUP_INTERVAL` | `1h`       | ⏰ 备份间隔时间（支持 `s`/`m`/`h`，如 `6h`） |
-| `RETENTION_DAYS`  | `30`       | 🗂️ 备份保留天数（设为 `0` 禁用清理）         |
-| `DATA_DIR`        | `/data`    | 📁 Vaultwarden 数据目录路径                  |
-| `BACKUP_DIR`      | `/backups` | 💾 备份文件存储路径                          |
+| 环境变量              | 默认值     | 说明                                                                |
+| --------------------- | ---------- | ------------------------------------------------------------------- |
+| `PASSWORD`            | _必需_     | 🔑 备份文件加密密码（请设置强密码）                                 |
+| `BACKUP_INTERVAL`     | `6h`       | ⏰ 备份间隔时间（支持 `s`/`m`/`h`，如 `6h`）                        |
+| `PRUNE_BACKUPS_DAYS`  | `30`       | 🗂️ 备份保留天数（设为 `0` 禁用清理）                                |
+| `PRUNE_BACKUPS_COUNT` | `0`        | 🔢 保留的备份文件数量（设为 `0` 禁用，优先于 `PRUNE_BACKUPS_DAYS`） |
+| `BACKUP_NAME`         | `vault`    | 📝 备份文件名前缀                                                   |
+| `DATA_DIR`            | `/data`    | 📁 Vaultwarden 数据目录路径                                         |
+| `BACKUP_DIR`          | `/backups` | 💾 备份文件存储路径                                                 |
 
 ## 📋 常用操作
 

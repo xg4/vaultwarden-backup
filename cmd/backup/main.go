@@ -26,11 +26,7 @@ func main() {
 	}
 
 	// 显示关键配置信息
-	slog.Info("🚀 启动备份服务",
-		"DATA_DIR", cfg.DataDir,
-		"BACKUP_DIR", cfg.BackupDir,
-		"BACKUP_INTERVAL", cfg.BackupInterval,
-		"RETENTION_DAYS", cfg.RetentionDays)
+	slog.Info("🚀 启动备份服务", "ENV", cfg)
 
 	// 设置优雅关闭
 	ctx, cancel := context.WithCancel(context.Background())

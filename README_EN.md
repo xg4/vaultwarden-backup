@@ -26,7 +26,8 @@ docker run -d \
   -v /path/to/vaultwarden/data:/data \
   -v /path/to/backups:/backups \
   -e PASSWORD=your-strong-password \
-  -e RETENTION_DAYS=30 \
+  -e BACKUP_INTERVAL=6h \
+  -e PRUNE_BACKUPS_DAYS=7 \
   --restart unless-stopped \
   ghcr.io/xg4/vaultwarden-backup:latest
 ```
@@ -35,13 +36,15 @@ docker run -d \
 
 ## ⚙️ Configuration Options
 
-| Environment Variable | Default Value | Description                                                       |
-| -------------------- | ------------- | ----------------------------------------------------------------- |
-| `PASSWORD`           | _Required_    | 🔑 Backup file encryption password (please set a strong password) |
-| `BACKUP_INTERVAL`    | `1h`          | ⏰ Backup interval time (supports `s`/`m`/`h`, e.g., `6h`)        |
-| `RETENTION_DAYS`     | `30`          | 🗂️ Backup retention days (set to `0` to disable cleanup)          |
-| `DATA_DIR`           | `/data`       | 📁 Vaultwarden data directory path                                |
-| `BACKUP_DIR`         | `/backups`    | 💾 Backup file storage path                                       |
+| Environment Variable  | Default Value | Description                                                                               |
+| --------------------- | ------------- | ----------------------------------------------------------------------------------------- |
+| `PASSWORD`            | _Required_    | 🔑 Backup file encryption password (please set a strong password)                         |
+| `BACKUP_INTERVAL`     | `6h`          | ⏰ Backup interval time (supports `s`/`m`/`h`, e.g., `6h`)                                |
+| `PRUNE_BACKUPS_DAYS`  | `30`          | 🗂️ Backup retention days (set to `0` to disable cleanup)                                  |
+| `PRUNE_BACKUPS_COUNT` | `0`           | 🔢 Number of backup files to keep (set to `0` to disable, overrides `PRUNE_BACKUPS_DAYS`) |
+| `BACKUP_NAME`         | `vault`       | 📝 Backup filename prefix                                                                 |
+| `DATA_DIR`            | `/data`       | 📁 Vaultwarden data directory path                                                        |
+| `BACKUP_DIR`          | `/backups`    | 💾 Backup file storage path                                                               |
 
 ## 📋 Common Operations
 

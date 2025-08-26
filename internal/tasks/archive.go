@@ -15,7 +15,7 @@ type ArchiveTask struct {
 	Timestamp string
 }
 
-func (c *ArchiveTask) Name() string { return "打包/压缩/加密" }
+func (c *ArchiveTask) Name() string { return "归档" }
 
 func (c *ArchiveTask) Run(cfg *config.Config) error {
 	entries, err := os.ReadDir(cfg.TmpDir)
@@ -27,7 +27,7 @@ func (c *ArchiveTask) Run(cfg *config.Config) error {
 		return fmt.Errorf("备份目录为空")
 	}
 
-	archiveFile := filepath.Join(cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", cfg.Filename, c.Timestamp))
+	archiveFile := filepath.Join(cfg.BackupDir, fmt.Sprintf("%s_%s.tar.gz", cfg.BackupName, c.Timestamp))
 	slog.Debug("🔐 创建加密归档", "file", filepath.Base(archiveFile))
 
 	// 创建加密归档

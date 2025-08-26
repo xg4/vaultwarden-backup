@@ -11,13 +11,14 @@ import (
 
 // Config 保存了应用的所有配置
 type Config struct {
-	BackupDir      string
-	TmpDir         string
-	DataDir        string
-	Filename       string
-	RetentionDays  int
-	Password       string
-	BackupInterval time.Duration
+	BackupDir         string
+	TmpDir            string
+	DataDir           string
+	BackupName        string
+	PruneBackupsDays  int
+	PruneBackupsCount int
+	Password          string
+	BackupInterval    time.Duration
 }
 
 // Load 从环境变量中加载配置
@@ -27,36 +28,46 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("错误：未设置 PASSWORD 环境变量。请设置备份密码：export PASSWORD='your_password'")
 	}
 
-	retentionDaysStr := getEnv("RETENTION_DAYS", "30")
-	retentionDays, err := strconv.Atoi(retentionDaysStr)
+	pruneBackupsDaysStr := getEnv("PRUNE_BACKUPS_DAYS", "30")
+	pruneBackupsDays, err := strconv.Atoi(pruneBackupsDaysStr)
 	if err != nil {
-		return nil, fmt.Errorf("无效的 RETENTION_DAYS: %v", err)
+		return nil, fmt.Errorf("无效的 PRUNE_BACKUPS_DAYS: %v", err)
 	}
-	if retentionDays < 0 {
-		return nil, fmt.Errorf("RETENTION_DAYS 不能为负数: %d", retentionDays)
+	if pruneBackupsDays < 0 {
+		pruneBackupsDays = 0
 	}
 
-	backupIntervalStr := getEnv("BACKUP_INTERVAL", "1h")
+	pruneBackupsCountStr := getEnv("PRUNE_BACKUPS_COUNT", "0")
+	pruneBackupsCount, err := strconv.Atoi(pruneBackupsCountStr)
+	if err != nil {
+		return nil, fmt.Errorf("无效的 PRUNE_BACKUPS_COUNT: %v", err)
+	}
+	if pruneBackupsCount < 0 {
+		pruneBackupsCount = 0
+	}
+
+	backupIntervalStr := getEnv("BACKUP_INTERVAL", "6h")
 	backupInterval, err := time.ParseDuration(backupIntervalStr)
 	if err != nil {
 		return nil, fmt.Errorf("无效的 BACKUP_INTERVAL: %v", err)
 	}
 	if backupInterval < time.Minute {
-		return nil, fmt.Errorf("BACKUP_INTERVAL 不能小于1分钟: %v", backupInterval)
+		backupInterval = time.Minute
 	}
 
 	backupDir := getEnv("BACKUP_DIR", "/backups")
 	dataDir := getEnv("DATA_DIR", "/data")
-	tmpDir := filepath.Join(backupDir, "/.tmp")
+	tmpDir := filepath.Join(backupDir, "/.backup_tmp")
 
 	cfg := &Config{
-		BackupDir:      backupDir,
-		DataDir:        dataDir,
-		TmpDir:         tmpDir,
-		Filename:       getEnv("FILENAME", "vault"),
-		RetentionDays:  retentionDays,
-		Password:       password,
-		BackupInterval: backupInterval,
+		BackupDir:         backupDir,
+		DataDir:           dataDir,
+		TmpDir:            tmpDir,
+		BackupName:        getEnv("BACKUP_NAME", "vault"),
+		PruneBackupsDays:  pruneBackupsDays,
+		PruneBackupsCount: pruneBackupsCount,
+		Password:          password,
+		BackupInterval:    backupInterval,
 	}
 
 	return cfg, nil
